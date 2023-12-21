@@ -5,24 +5,24 @@ export function useEnhancedMap<K, V>() {
   const [map, setMap] = useState(new EnhancedMap<K, V>());
 
   function get(k: K) {
-    return map.get(k);
+    return map.get(k) || null;
   }
 
   function update(k: K, v: { [P in keyof V]?: unknown }) {
     map.update(k, v);
     setMap(new EnhancedMap(map));
-    return map.get(k);
+    return map.get(k) || null;
   }
 
   function set(k: K, v: V) {
     map.set(k, v);
     setMap(new EnhancedMap(map));
-    return map.get(k);
+    return map.get(k) || null;
   }
 
   function add(v: V) {
     map.set((map.size as unknown) as K, v);
-    return map.get((map.size as unknown) as K);
+    return map.get((map.size as unknown) as K) || null;
   }
 
   function _delete(k: K) {
@@ -37,9 +37,16 @@ export function useEnhancedMap<K, V>() {
   }
 
   function setMany(array: Array<[K, V]>) {
-    array.forEach(([k, v]) => map.set(k, v));
-    setMap(new EnhancedMap(map));
-    return array.length;
+    try {
+      array.forEach(([k, v]) => map.set(k, v));
+      setMap(new EnhancedMap(map));
+      return map.size;
+    } catch (error) {
+      console.warn(
+        'Invalid argument for setMany(array: Array), received ' + typeof array
+      );
+      return 0;
+    }
   }
 
   function mapValues<T = V>(callback?: (value: V, index: number) => T) {
