@@ -18,32 +18,68 @@ yarn add use-enhanced-map
 
 ```ts
 import React from 'react';
-import { useEnhancedMap } from 'enhanced-map';
+import { useEnhancedMap } from 'use-enhanced-map';
+
+type Todo = {
+  description: string;
+  done: boolean;
+};
 
 const MyComponent = () => {
-  const enhancedMap = useEnhancedMap<string, string>();
+  const enhancedMap = useEnhancedMap<string, Todo>();
 
-  const handleAdd = () => {
-    enhancedMap.add('newKey');
+  // Add some initial tasks when the component loads
+  React.useEffect(() => {
+    enhancedMap.setMany([
+      ['task1', { description: 'Complete assignment', done: false }],
+      ['task2', { description: 'Prepare presentation', done: true }],
+      ['task3', { description: 'Read a book', done: false }],
+    ]);
+  }, [enhancedMap]);
+
+  // Function to mark a task as done
+  const handleMarkAsDone = (key: string) => {
+    enhancedMap.update(key, { done: true });
   };
 
-  const handleUpdate = () => {
-    enhancedMap.update('existingKey', 'updatedValue');
+  // Function to add a new task
+  const handleAddTask = () => {
+    const newTask: Todo = { description: 'New Task', done: false };
+    enhancedMap.add(newTask);
+  };
+
+  // Function to delete a task
+  const handleDeleteTask = (key: string) => {
+    enhancedMap.delete(key);
+  };
+
+  // Function to clear all tasks
+  const handleClearTasks = () => {
+    enhancedMap.clear();
   };
 
   return (
     <div>
+      <h1>Todo List</h1>
       <ul>
-        {enhancedMap.mapValues((value, index) => (
-          <li key={index}>{value}</li>
+        {enhancedMap.mapEntries((key, task) => (
+          <li key={key}>
+            <input
+              type="checkbox"
+              checked={task.done}
+              onChange={() => handleMarkAsDone(key)}
+            />
+            <span>{task.description}</span>
+            <button onClick={() => handleDeleteTask(key)}>Delete</button>
+          </li>
         ))}
       </ul>
-      <button onClick={handleAdd}>Add</button>
-      <button onClick={handleUpdate}>Update</button>
+      <button onClick={handleAddTask}>Add Task</button>
+      <button onClick={handleClearTasks}>Clear All Tasks</button>
+      <p>Total Tasks: {enhancedMap.size}</p>
     </div>
   );
 };
-
 export default MyComponent;
 ```
 
