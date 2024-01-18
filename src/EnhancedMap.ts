@@ -22,7 +22,7 @@ class EnhancedMap<K = unknown, V = unknown> extends Map<K, V> {
     return Array.from(this.entries());
   }
 
-  public update(key: K, newValue: { [P in keyof V]?: unknown } | V): this {
+  public update(key: K, newValue: Partial<V> | V): this {
     if (!this.has(key)) {
       return this;
     }

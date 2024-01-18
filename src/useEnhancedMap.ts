@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { EnhancedMap } from './EnhancedMap';
+import { weakUUID } from './utils';
 
 export function useEnhancedMap<K, V>() {
   const [map, setMap] = useState(new EnhancedMap<K, V>());
@@ -8,7 +9,7 @@ export function useEnhancedMap<K, V>() {
     return map.get(k) || null;
   }
 
-  function update(k: K, v: { [P in keyof V]?: unknown }) {
+  function update(k: K, v: Partial<V>) {
     map.update(k, v);
     setMap(new EnhancedMap(map));
     return map.get(k) || null;
@@ -21,7 +22,7 @@ export function useEnhancedMap<K, V>() {
   }
 
   function add(v: V) {
-    map.set((map.size as unknown) as K, v);
+    map.set((weakUUID() as unknown) as K, v);
     return map.get((map.size as unknown) as K) || null;
   }
 
